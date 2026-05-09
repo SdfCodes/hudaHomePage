@@ -6,7 +6,7 @@ import 'huda_student_theme.dart';
 import 'pages/home_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -21,7 +21,6 @@ class _MyAppState extends State<MyApp> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const SearchPage(),
     const DownloadPage(),
     const SettingsPage(),
   ];
@@ -33,28 +32,32 @@ class _MyAppState extends State<MyApp> {
       theme: HudaStudentTheme.light(),
       darkTheme: HudaStudentTheme.dark(),
       themeMode: ThemeMode.system,
+      home: Builder(
+        builder: (context) => Scaffold(
+          body: _pages[_selectedIndex],
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _selectedIndex == 0 ? 0 : _selectedIndex + 1,
+            onDestinationSelected: (int index) {
+              if (index == 1) {
 
-      home: Scaffold(
-        body: _pages[_selectedIndex],
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: (int index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-            NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
-            NavigationDestination(
-              icon: Icon(Icons.download),
-              label: 'Downloads',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchPage()),
+                );
+              } else {
+                setState(() {
+
+                  _selectedIndex = index > 1 ? index - 1 : index;
+                });
+              }
+            },
+            destinations: const [
+              NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+              NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
+              NavigationDestination(icon: Icon(Icons.download), label: 'Downloads'),
+              NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+            ],
+          ),
         ),
       ),
     );
