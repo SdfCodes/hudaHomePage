@@ -61,8 +61,7 @@ class HeaderDesign extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+
                 ),
               ),
               padding: EdgeInsets.symmetric(vertical: 40, horizontal: 15),

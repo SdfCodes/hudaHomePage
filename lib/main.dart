@@ -21,6 +21,7 @@ class _MyAppState extends State<MyApp> {
 
   final List<Widget> _pages = [
     const HomePage(),
+    const SearchPage(),
     const DownloadPage(),
     const SettingsPage(),
   ];
@@ -30,33 +31,66 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: HudaStudentTheme.light(),
-      darkTheme: HudaStudentTheme.dark(),
-      themeMode: ThemeMode.system,
-      home: Builder(
-        builder: (context) => Scaffold(
-          body: _pages[_selectedIndex],
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _selectedIndex == 0 ? 0 : _selectedIndex + 1,
-            onDestinationSelected: (int index) {
-              if (index == 1) {
+      home: Scaffold(
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SearchPage()),
-                );
-              } else {
-                setState(() {
+        backgroundColor: const Color(0xffF8F8F8),
 
-                  _selectedIndex = index > 1 ? index - 1 : index;
-                });
-              }
-            },
-            destinations: const [
-              NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-              NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
-              NavigationDestination(icon: Icon(Icons.download), label: 'Downloads'),
-              NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+        body: _pages[_selectedIndex],
+
+        bottomNavigationBar: Container(
+
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(25),
+              topRight: Radius.circular(25),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 15,
+                offset: const Offset(0, -5),
+              ),
             ],
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(25),
+              topRight: Radius.circular(25),
+            ),
+            child: NavigationBarTheme(
+              data: NavigationBarThemeData(
+                indicatorColor: Colors.transparent,
+                labelTextStyle: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return const TextStyle(color: Color(0xff2E2E48), fontWeight: FontWeight.bold);
+                  }
+                  return const TextStyle(color: Colors.grey);
+                }),
+                iconTheme: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return const IconThemeData(color: Color(0xff2E2E48), size: 28);
+                  }
+                  return const IconThemeData(color: Colors.grey, size: 26);
+                }),
+              ),
+              child: NavigationBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: (int index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                destinations: const [
+                  NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
+                  NavigationDestination(icon: Icon(Icons.search), selectedIcon: Icon(Icons.search), label: 'Search'),
+                  NavigationDestination(icon: Icon(Icons.file_download_outlined), selectedIcon: Icon(Icons.file_download), label: 'Downloads'),
+                  NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
+                ],
+              ),
+            ),
           ),
         ),
       ),
