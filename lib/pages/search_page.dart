@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:huda_home_page/headerdesig.dart';
 
+class Course {
+  final String title, instructor, price, videoCount;
+  final List<String> tags;
+  Course({required this.title, required this.instructor, required this.price, required this.videoCount, required this.tags});
+}
+
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -12,57 +18,34 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool isSearching = false;
-  bool isFocused = false;
+  List<Course> filteredResults = [];
 
 
-  final List<String> allSuggestions = [
-    "Cooking lessons",
-    "Cooking Art",
-    "Cooking at home",
-    "Cooking a good meal",
-    "Business Management",
-    "Creative Writing",
-    "Health and Psychology",
-    "History of Art",
-    "Tech and Coding",
+  final List<Course> allCourses = [
+    Course(instructor: "Gordon Ramsay", title: "Teaches cooking I: Cooking is not easy", price: "\$49.99", videoCount: "12 videos", tags: ["Art", "Culinary", "Science", "Cooking"]),
+    Course(instructor: "Gordon Ramsay", title: "Teaches cooking II: Restaurant recipes", price: "\$89.99", videoCount: "12 videos", tags: ["Art", "Culinary", "Cooking"]),
+    Course(instructor: "Alice Waters", title: "Art of Home cooking", price: "\$29.99", videoCount: "10 videos", tags: ["Art", "Culinary", "Cooking"]),
+    Course(instructor: "John Doe", title: "Business & Management Basics", price: "\$39.99", videoCount: "15 videos", tags: ["Business & Management"]),
+    Course(instructor: "Sarah Art", title: "Creative Art & Media Guide", price: "\$45.00", videoCount: "18 videos", tags: ["Creative Art & Media"]),
+    Course(instructor: "Tech Expert", title: "Tech & Coding Masterclass", price: "\$59.99", videoCount: "20 videos", tags: ["Tech & Coding"]),
+    Course(instructor: "Dr. Smith", title: "Health & Psychology 101", price: "\$35.00", videoCount: "14 videos", tags: ["Health & Psychology"]),
   ];
 
-
-  List<String> filteredSuggestions = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode.addListener(() {
-      setState(() {
-        isFocused = _focusNode.hasFocus;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-
-  void _filterSearch(String query) {
-    if (query.isEmpty) {
-      setState(() {
+  void _runSearch(String query) {
+    setState(() {
+      if (query.isEmpty) {
         isSearching = false;
-        filteredSuggestions = [];
-      });
-    } else {
-      setState(() {
+        filteredResults = [];
+      } else {
         isSearching = true;
 
-        filteredSuggestions = allSuggestions
-            .where((item) => item.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      });
-    }
+        filteredResults = allCourses.where((c) =>
+        c.title.toLowerCase().contains(query.toLowerCase()) ||
+            c.instructor.toLowerCase().contains(query.toLowerCase()) ||
+            c.tags.any((tag) => tag.toLowerCase().contains(query.toLowerCase()))
+        ).toList();
+      }
+    });
   }
 
   @override
@@ -75,93 +58,64 @@ class _SearchPageState extends State<SearchPage> {
             title: "",
             children: [
               const SizedBox(height: 20),
-              if (isFocused && !isSearching) ...[
-                const SizedBox(height: 50),
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.search, size: 120, color: Colors.yellow.withOpacity(0.3)),
-                      const SizedBox(height: 20),
-                      const Text(
-                        "Search what you want to learn.",
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-              ] else if (!isFocused) ...[
+              if (!isSearching) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    "Popular Tags",
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xff2E2E48)),
-                  ),
+                  child: Text("Popular Tags", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xff2E2E48))),
                 ),
                 const SizedBox(height: 20),
+                _buildTag("Cooking"),
                 _buildTag("Business & Management"),
                 _buildTag("Creative Art & Media"),
                 _buildTag("Health & Psychology"),
-                _buildTag("History"),
-                _buildTag("Languages and Cultures "),
+                _buildTag("Tech & Coding"),
+                _buildTag("Languages and Cultures"),
                 _buildTag("Science, Engineering & Maths"),
-                _buildTag("Study Skills"),
-                _buildTag("Tech & Cooding"),
+              ] else ...[
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("There are ${filteredResults.length} classes founded",
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xff2E2E48))),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.grey),
+                        onPressed: () {
+                          _controller.clear();
+                          _runSearch("");
+                        },
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                ...filteredResults.map((course) => _buildCourseCard(course)).toList(),
+                const SizedBox(height: 100),
               ],
             ],
           ),
 
-          Positioned(
-            top: 130,
-            left: 40,
-            right: 40,
-            child: Material(
-              elevation: 8,
-              shadowColor: Colors.black26,
-              borderRadius: BorderRadius.circular(45),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(55),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      onChanged: _filterSearch,
-                      decoration: InputDecoration(
-                        hintText: 'Try "Easy ways write a novel"',
-                        hintStyle: const TextStyle(color: Colors.black54, fontSize: 16),
-                        prefixIcon: const Icon(Icons.search, color: Colors.black87, size: 28),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 18),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(35),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
 
-                    if (isSearching && filteredSuggestions.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 15),
-                        child: Column(
-                          children: filteredSuggestions
-                              .map((text) => ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-                            title: Text(text, style: const TextStyle(color: Colors.black54)),
-                            onTap: () {
-                              _controller.text = text;
-                              _focusNode.unfocus();
-                              setState(() { isSearching = false; });
-                            },
-                          ))
-                              .toList(),
-                        ),
-                      ),
-                  ],
+          Positioned(
+            top: 130, left: 40, right: 40,
+            child: Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(45),
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                onChanged: _runSearch,
+                onSubmitted: _runSearch,
+                decoration: InputDecoration(
+                  hintText: 'Try "Easy ways write a novel"',
+                  prefixIcon: const Icon(Icons.search, color: Colors.black87, size: 28),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(35), borderSide: BorderSide.none),
                 ),
               ),
             ),
@@ -171,18 +125,73 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  static Widget _buildTag(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
+  Widget _buildCourseCard(Course course) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            child: Text(title, style: const TextStyle(fontSize: 18, color: Color(0xff44446A))),
+          Container(
+              width: 85, height: 85,
+              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10))
           ),
-          const Divider(thickness: 0.8, color: Color(0xffE6E6F2)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(course.instructor, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    Text(course.price, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(course.title, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 2),
+                const SizedBox(height: 8),
+                Text("• ${course.tags.join(' • ')}", style: const TextStyle(fontSize: 10, color: Colors.blueGrey)),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(children: [Icon(Icons.star, color: Colors.orange, size: 14), Icon(Icons.star, color: Colors.orange, size: 14), Icon(Icons.star, color: Colors.orange, size: 14)]),
+                    Text(course.videoCount, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTag(String title) {
+    return InkWell(
+      onTap: () {
+        _controller.text = title;
+        _runSearch(title);
+        _focusNode.unfocus();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              child: Text(title, style: const TextStyle(fontSize: 18, color: Color(0xff44446A))),
+            ),
+            const Divider(thickness: 0.8, color: Color(0xffE6E6F2)),
+          ],
+        ),
       ),
     );
   }
