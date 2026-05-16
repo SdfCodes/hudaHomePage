@@ -164,7 +164,6 @@ class HudaStudentTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: cardColor,
-
         hintStyle: textTheme.bodyMedium?.copyWith(color: mutedTextColor),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 18,

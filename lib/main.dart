@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:huda_home_page/pages/Payment.dart';
+import 'package:huda_home_page/pages/account_settings.dart';
 import 'package:huda_home_page/pages/download_page.dart';
+import 'package:huda_home_page/pages/reminder.dart';
 import 'package:huda_home_page/pages/search_page.dart';
 import 'package:huda_home_page/pages/settings_page.dart';
 import 'huda_student_theme.dart';
@@ -20,9 +23,9 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const HomePage(),
+    const PaymentPage(),
     const SearchPage(),
-    const DownloadPage(),
+    const DownloadsPage(),
     const SettingsPage(),
   ];
 
